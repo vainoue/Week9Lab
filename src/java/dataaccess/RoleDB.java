@@ -5,10 +5,8 @@
  */
 package dataaccess;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityManager;
 import models.Role;
 
 /**
@@ -16,57 +14,26 @@ import models.Role;
  * @author vitor
  */
 public class RoleDB {
-    public ArrayList<Role> getAll() throws Exception {
-        ArrayList<Role> role_array = new ArrayList<>();
-        ConnectionPool cp = ConnectionPool.getInstance();
-        Connection con = cp.getConnection();
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        
-        String sql = "SELECT * FROM userdb.role";
+    public List<Role> getAll() throws Exception {
+        EntityManager em = DBUtil.getEmFactory().createEntityManager();
         
         try {
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                //get data from database
-                int role_id = rs.getInt(1);
-                String role_name = rs.getString(2);
-                
-                //create new Role and add to array
-                Role newRole = new Role(role_id, role_name);
-                role_array.add(newRole);
-            }
+            List<Role> role = em.createNamedQuery("Role.findAll", Role.class).getResultList();
+            return role;
         } finally {
-            DBUtil.closeResultSet(rs);
-            DBUtil.closePreparedStatement(ps);
-            cp.freeConnection(con);
+            em.close();
         }
-        
-        return role_array;
     }
     
-    public String userRole (int role_number) throws Exception {
-        ConnectionPool cp = ConnectionPool.getInstance();
-        Connection con = cp.getConnection();
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        
-        String roleName = "";
-        String sql = "SELECT role_name FROM userdb.role WHERE role_id=?";
-        
+    public Role getRoleName (int id) throws Exception {
+        EntityManager em = DBUtil.getEmFactory().createEntityManager();
+
         try {
-            ps = con.prepareStatement(sql);
-            ps.setInt(1, role_number);
-            rs = ps.executeQuery();
-            rs.next();
-            roleName = rs.getString(1);
+            Role role = em.find(Role.class, id);
+            return role;
         } finally {
-            DBUtil.closeResultSet(rs);
-            DBUtil.closePreparedStatement(ps);
-            cp.freeConnection(con);
+            em.close();
         }
-        return roleName;
     }
     
 }

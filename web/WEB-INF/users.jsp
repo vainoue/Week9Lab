@@ -37,7 +37,7 @@
 
                         <c:forEach items="${roles1}" var="rolesData">
                             <c:choose>
-                                <c:when test="${userData.role == rolesData.roleId}">
+                                <c:when test="${userData.role.roleId == rolesData.roleId}">
                                     <td>${rolesData.roleName}</td>
                                 </c:when>
                             </c:choose>
@@ -60,7 +60,6 @@
             <h2>Edit User</h2>
             <form action="users" method="post">
                 Email: ${printEmail}<br>
-                <c:forEach items="${userRow}" var="column">
                     First name:
                     <input type="text" name="fname" value="${column.firstName}"><br>
                     Last name:
@@ -72,7 +71,6 @@
                             <option value="${roleSel.roleId}" ${roleSel.roleName == selectedRole ? 'selected="selected"' : ''}>${roleSel.roleName}</option>
                         </c:forEach>                            
                     </select><br>
-                </c:forEach>
                 <input type="hidden" name="action" value="update">
                 <input type="submit" value="Update">
                 <a href="<c:url value='users?action=cancel'></c:url>"><input type="button" value="Cancel"></a>

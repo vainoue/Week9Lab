@@ -6,7 +6,7 @@
 package servlets;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -44,16 +44,16 @@ public class userServlet extends HttpServlet {
 
                 //caso tenha que armazenar os valores que constam na database
                 try {
-                    ArrayList<User> getRow = us.getUser(email);
-                    ArrayList<Role> typeRole = (ArrayList<Role>) session.getAttribute("roles1");
-                    String role = getRoleName(email);
+                    User getRow = us.getUser(email);
+                    List<Role> typeRole = (List<Role>) session.getAttribute("roles1");
+                    String role = getRow.getRole().getRoleName();
                     String admin = typeRole.get(0).getRoleName();
                     String regular = typeRole.get(1).getRoleName();
 
                     session.setAttribute("systemAdmin", admin);
                     session.setAttribute("regularUser", regular);
                     session.setAttribute("selectedRole", role);
-                    session.setAttribute("userRow", getRow);
+                    session.setAttribute("column", getRow);
                 } catch (Exception ex) {
                     Logger.getLogger(userServlet.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -71,9 +71,9 @@ public class userServlet extends HttpServlet {
             }
         }
         try {
-            ArrayList<User> users = us.getAll();
+            List<User> users = us.getAll();
             session.setAttribute("users1", users);
-            ArrayList<Role> roles = role_service.getAll();
+            List<Role> roles = role_service.getAll();
             session.setAttribute("roles1", roles);
             if (users.isEmpty()) {
                 String empty = "No users found. Please add a user.";
@@ -104,7 +104,7 @@ public class userServlet extends HttpServlet {
         String password = request.getParameter("inpassword");
         String roleSelection = request.getParameter("serole");
         int role = Integer.parseInt(roleSelection);
-        ArrayList<User> getRow = new ArrayList<>();
+        User getRow = new User();
 
         if (action.equals("add")) {
             if (!email.equals("") && !first_name.equals("") && !last_name.equals("") && !password.equals("")) {
@@ -114,7 +114,7 @@ public class userServlet extends HttpServlet {
                     Logger.getLogger(userServlet.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 try {
-                    if (!getRow.isEmpty()) {
+                    if (getRow != null) {
                         String userExist = "This email already exists.";
                         request.setAttribute("invalid", userExist);
                     } else {
@@ -135,11 +135,11 @@ public class userServlet extends HttpServlet {
             if (!first_name.equals("") && !last_name.equals("") && !password.equals("")) {
                 try {
                     us.updateUser(email, first_name, last_name, password, role);
-                    String roleName = getRoleName(email);
+                    String roleName = us.getUser(email).getRole().getRoleName();
                     getRow = us.getUser(email);
 
                     session.setAttribute("selectedRole", roleName);
-                    session.setAttribute("userRow", getRow);
+                    session.setAttribute("column", getRow);
 
                 } catch (Exception ex) {
                     Logger.getLogger(userServlet.class.getName()).log(Level.SEVERE, null, ex);
@@ -153,7 +153,7 @@ public class userServlet extends HttpServlet {
             }
         }
         try {
-            ArrayList<User> users = us.getAll();
+            List<User> users = us.getAll();
             session.setAttribute("users1", users);
             if (users.isEmpty()) {
                 String empty = "No users found. Please add a user.";
@@ -166,22 +166,4 @@ public class userServlet extends HttpServlet {
         getServletContext().getRequestDispatcher("/WEB-INF/users.jsp")
                 .forward(request, response);
     }
-
-    private String getRoleName(String email) throws Exception {
-        UserService us = new UserService();
-        RoleService role_service = new RoleService();
-
-        String role = "Not found";
-
-        try {
-            ArrayList<User> getRow = us.getUser(email);
-            int roleNum = getRow.get(0).getRole();
-            role = role_service.userRole(roleNum);
-
-        } catch (Exception ex) {
-            Logger.getLogger(userServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return role;
-    }
-
 }

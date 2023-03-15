@@ -5,8 +5,11 @@
  */
 package services;
 
+import dataaccess.RoleDB;
 import dataaccess.UserDB;
 import java.util.ArrayList;
+import java.util.List;
+import models.Role;
 import models.User;
 
 /**
@@ -14,27 +17,33 @@ import models.User;
  * @author vitor
  */
 public class UserService {
-    public ArrayList<User> getAll() throws Exception {
+    public List<User> getAll() throws Exception {
         UserDB newUserDB = new UserDB();
-        ArrayList<User> store_user = newUserDB.getAll();
+        List<User> store_user = newUserDB.getAll();
         return store_user;
     }
     
     public void addUser(String email, String first_name, String last_name, String password, int role) throws Exception {
-        User newUser = new User(email, first_name, last_name, password, role);
+        User newUser = new User(email, first_name, last_name, password);
+        RoleDB roleDB = new RoleDB();
+        Role roleName = roleDB.getRoleName(role);
+        newUser.setRole(roleName);
         UserDB newUserDB = new UserDB();
         newUserDB.addUser(newUser);
     }
     
     public void updateUser(String email, String first_name, String last_name, String password, int role) throws Exception {
-        User updateUser = new User(email, first_name, last_name, password, role);
+        User updateUser = new User(email, first_name, last_name, password);
+        RoleDB roleDB = new RoleDB();
+        Role roleName = roleDB.getRoleName(role);
+        updateUser.setRole(roleName);
         UserDB updateUserDB = new UserDB();
         updateUserDB.updateUser(updateUser);
     }
     
-    public ArrayList<User> getUser(String email) throws Exception {
+    public User getUser(String email) throws Exception {
         UserDB getUserDB = new UserDB();
-        ArrayList<User> getUserRow = getUserDB.getUser(email);
+        User getUserRow = getUserDB.getUser(email);
         return getUserRow;
     }
     
