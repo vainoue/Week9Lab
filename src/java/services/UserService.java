@@ -33,12 +33,16 @@ public class UserService {
     }
     
     public void updateUser(String email, String first_name, String last_name, String password, int role) throws Exception {
-        User updateUser = new User(email, first_name, last_name, password);
+        UserDB userDB = new UserDB();
+        User userUpdate = userDB.getUser(email);
+        userUpdate.setFirstName(first_name);
+        userUpdate.setLastName(last_name);
+        userUpdate.setPassword(password);
         RoleDB roleDB = new RoleDB();
         Role roleName = roleDB.getRoleName(role);
-        updateUser.setRole(roleName);
-        UserDB updateUserDB = new UserDB();
-        updateUserDB.updateUser(updateUser);
+        userUpdate.setRole(roleName);
+        userDB.updateUser(userUpdate);
+        
     }
     
     public User getUser(String email) throws Exception {
